@@ -1,0 +1,95 @@
+@BackupNAND
+labelsel "Backup NAND?" bak_*
+
+@bak_Backup_SysNAND
+findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
+cp -h S:/nand_minsize.bin $[OUTPATH]
+goto BackupNAND
+
+@bak_Backup_EmuNAND
+findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_emunand_???.bin OUTPATH
+cp -h E:/nand_minsize.bin $[OUTPATH]
+goto BackupNAND
+
+@bak_No_backup
+goto selwork
+
+
+
+
+@selwork
+labelsel "You want to?" lswork_*
+
+
+
+
+@lswork_Insatll_SC/TC_to_SysNAND
+if chk $[ONTYPE] "N3DS"
+    cp -w -s -n 0:/apps/New3DS/title 1:/title
+elif chk $[ONTYPE] "O3DS"
+    cp -w -s -n 0:/apps/Old3DS/title 1:/title
+else
+    echo "Setup failed!"
+end
+if ask "Want to install SC/TC home menu?"
+	filesel -d "Select your modified Home Menu CIA" 0:/apps/*.cia CIA
+	encrypt $[CIA]
+	imgmount $[CIA]
+	find G:/*.app EDITAPP
+	find 1:/title/00040030/00008202/content/*.app ORIGAPP
+	cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
+	cp -k $[ORIGAPP] 1:/rw/originalhomemenu.app
+	goto replace
+    goto selwork
+else
+    goto selwork
+end
+
+@lswork_Install_SC/TC_to_EmuNAND
+if chk $[ONTYPE] "N3DS"
+    cp -w -s -n 0:/apps/New3DS/title 4:/title
+elif chk $[ONTYPE] "O3DS"
+    cp -w -s -n 0:/apps/Old3DS/title 4:/title
+else
+    echo "Setup failed!"
+end
+
+if ask "Want to install SC/TC home menu?"
+    filesel -d "Select your modified Home Menu CIA" 0:/apps/*.cia CIA
+    encrypt $[CIA]
+    imgmount $[CIA]
+    find G:/*.app EDITAPP
+    find 4:/title/00040030/00008202/content/*.app ORIGAPP
+    cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
+    cp -k $[ORIGAPP] 4:/rw/originalhomemenu.app
+    goto replace
+    goto selwork
+else
+    goto selwork
+end
+
+
+@replace
+# Replace home menu .app with edited .app
+cp -w -n $[EDITAPP] $[ORIGAPP]
+goto selwork
+
+
+
+@lswork_Setup_Pinyin_Input_Method
+cp -w -s -n 0:/apps/Pinyin_input/title 1:/title
+goto selwork
+
+#@lswork_Setup_Japanese_Input_Method
+#cp -w -s -n 0:/apps/Jap_input/title 1:/title
+goto selwork
+
+
+@lswork_Delete_SD:/apps
+rm -o -s 0:/apps
+goto selwork
+
+@lswork_Reboot
+reboot
+
+@end

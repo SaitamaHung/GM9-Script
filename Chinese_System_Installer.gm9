@@ -1,24 +1,48 @@
 @BackupNAND
-labelsel "Backup NAND?" bak_*
+labelsel "Do You Want To Backup NAND First?" bak_*
 
-@bak_Backup_SysNAND
-findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
-cp -h S:/nand_minsize.bin $[OUTPATH]
-goto BackupNAND
+if find E:/nand_minsize.bin NULL
 
-@bak_Backup_EmuNAND
-findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_emunand_???.bin OUTPATH
-cp -h E:/nand_minsize.bin $[OUTPATH]
-goto BackupNAND
+    @bak_Backup_SysNAND
+    set ERRORMSG "SysNAND backup failed"
+    set SUCCESSMSG "SysNAND backup success"
+    if ask "Create a EmuNAND backup in $[GM9OUT]?"
+        findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
+        cp -h S:/nand_minsize.bin $[OUTPATH]
+        echo "Backup created succesfully:\n$[OUTPATH]"
+    end
+    goto BackupNAND
 
-@bak_No_backup
-goto selwork
+    @bak_Backup_EmuNAND
+    set ERRORMSG "EmuNAND backup failed"
+    set SUCCESSMSG "EmuNAND backup success"
+    if ask "Create a SysNAND backup in $[GM9OUT]?"
+        findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
+        cp -h S:/nand_minsize.bin $[OUTPATH]
+        echo "Backup created succesfully:\n$[OUTPATH]"
+    end
+    goto BackupNAND
 
+    @bak_No_backup
+    goto selwork
+
+else
+
+    @bak_Backup_Yes
+    set ERRORMSG "SysNAND backup failed"
+    set SUCCESSMSG "SysNAND backup success" 
+    findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
+    cp -h S:/nand_minsize.bin $[OUTPATH]
+    echo "Backup created succesfully:\n$[OUTPATH]"
+    @bak_Backup_No
+    goto selwork
+
+end
 
 
 
 @selwork
-labelsel "You want to?" lswork_*
+labelsel "Chinese System Installer Build 0\nWhat Do You Want To Do?" lswork_*
 
 
 

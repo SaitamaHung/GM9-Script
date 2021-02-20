@@ -100,14 +100,27 @@ goto selwork
 
 
 
-@lswork_Setup_Pinyin_Input_Method
-cp -w -s -n 0:/apps/Pinyin_input/title 1:/title
-goto selwork
+@lswork_Input_Method_Change
+#cp -w -s -n 0:/apps/Pinyin_input/title 1:/title
+goto input
 
 #@lswork_Setup_Japanese_Input_Method
 #cp -w -s -n 0:/apps/Jap_input/title 1:/title
 goto selwork
 
+@input
+labelsel "Which Input Method Do You Want To Use?" inputs_*
+
+@inputs_Simplified_Chinese
+cp -w -s -n 0:/apps/Pinyin_input/title 1:/title
+goto input
+
+@inputs_Japanese
+cp -w -s -n 0:/apps/Jap_input/title 1:/title
+goto input
+
+@inputs_Back
+goto selwork
 
 @lswork_Delete_SD:/apps
 rm -o -s 0:/apps

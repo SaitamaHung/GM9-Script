@@ -8,7 +8,8 @@ end
 @bak_Backup_SysNAND
 set ERRORMSG "SysNAND backup failed"
 set SUCCESSMSG "SysNAND backup success"
-if ask "Create a EmuNAND backup in $[GM9OUT]?"
+if ask "Create a SysNAND backup in $[GM9OUT]?"
+
     findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
     cp -h S:/nand_minsize.bin $[OUTPATH]
     echo "Backup created succesfully:\n$[OUTPATH]"
@@ -18,7 +19,7 @@ goto BackupNAND
 @bak_Backup_EmuNAND
 set ERRORMSG "EmuNAND backup failed"
 set SUCCESSMSG "EmuNAND backup success"
-if ask "Create a SysNAND backup in $[GM9OUT]?"
+if ask "Create a EmuNAND backup in $[GM9OUT]?"
     findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
     cp -h S:/nand_minsize.bin $[OUTPATH]
     echo "Backup created succesfully:\n$[OUTPATH]"

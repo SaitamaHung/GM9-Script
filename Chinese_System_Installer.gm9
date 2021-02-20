@@ -1,43 +1,42 @@
 @BackupNAND
-labelsel "Do You Want To Backup NAND First?" bak_*
-
-if find E:/nand_minsize.bin NULL
-
-    @bak_Backup_SysNAND
-    set ERRORMSG "SysNAND backup failed"
-    set SUCCESSMSG "SysNAND backup success"
-    if ask "Create a EmuNAND backup in $[GM9OUT]?"
-        findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
-        cp -h S:/nand_minsize.bin $[OUTPATH]
-        echo "Backup created succesfully:\n$[OUTPATH]"
-    end
-    goto BackupNAND
-
-    @bak_Backup_EmuNAND
-    set ERRORMSG "EmuNAND backup failed"
-    set SUCCESSMSG "EmuNAND backup success"
-    if ask "Create a SysNAND backup in $[GM9OUT]?"
-        findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
-        cp -h S:/nand_minsize.bin $[OUTPATH]
-        echo "Backup created succesfully:\n$[OUTPATH]"
-    end
-    goto BackupNAND
-
-    @bak_No_backup
-    goto selwork
-
+if find E:/nand.bin NULL
+    labelsel "Do You Want To Backup NAND First?" bak_*
 else
+    labelsel "Do You Want To Backup NAND First?" baks_*
+end
 
-    @bak_Backup_Yes
-    set ERRORMSG "SysNAND backup failed"
-    set SUCCESSMSG "SysNAND backup success" 
+@bak_Backup_SysNAND
+set ERRORMSG "SysNAND backup failed"
+set SUCCESSMSG "SysNAND backup success"
+if ask "Create a EmuNAND backup in $[GM9OUT]?"
     findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
     cp -h S:/nand_minsize.bin $[OUTPATH]
     echo "Backup created succesfully:\n$[OUTPATH]"
-    @bak_Backup_No
-    goto selwork
-
 end
+goto BackupNAND
+
+@bak_Backup_EmuNAND
+set ERRORMSG "EmuNAND backup failed"
+set SUCCESSMSG "EmuNAND backup success"
+if ask "Create a SysNAND backup in $[GM9OUT]?"
+    findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
+    cp -h S:/nand_minsize.bin $[OUTPATH]
+    echo "Backup created succesfully:\n$[OUTPATH]"
+end
+goto BackupNAND
+
+@bak_No_backup
+goto selwork
+
+
+@baks_Yes
+set ERRORMSG "SysNAND backup failed"
+set SUCCESSMSG "SysNAND backup success" 
+findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
+cp -h S:/nand_minsize.bin $[OUTPATH]
+echo "Backup created succesfully:\n$[OUTPATH]"
+@baks_No
+goto selwork
 
 
 

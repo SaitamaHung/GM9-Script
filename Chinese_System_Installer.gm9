@@ -45,7 +45,7 @@ goto selwork
 labelsel "Chinese System Installer Build 0\nWhat Do You Want To Do?" lswork_*
 
 
-
+cp -w -s -n 0:/apps/luma 0:/luma
 
 @lswork_Insatll_SC/TC_to_SysNAND
 if chk $[ONTYPE] "N3DS"
@@ -70,12 +70,21 @@ else
 end
 
 @lswork_Install_SC/TC_to_EmuNAND
+
+if findnot E:/nand.bin NULL
+    echo "You Don't Have EmuNAND"
+    goto lswork
+end
+
+cp -w -s -n 0:/apps/luma 0:/luma
+
 if chk $[ONTYPE] "N3DS"
     cp -w -s -n 0:/apps/New3DS/title 4:/title
 elif chk $[ONTYPE] "O3DS"
     cp -w -s -n 0:/apps/Old3DS/title 4:/title
 else
     echo "Setup failed!"
+    goto lswork
 end
 
 if ask "Want to install SC/TC home menu?"
@@ -97,7 +106,6 @@ end
 # Replace home menu .app with edited .app
 cp -w -n $[EDITAPP] $[ORIGAPP]
 goto selwork
-
 
 
 @lswork_Input_Method_Change
@@ -123,10 +131,22 @@ goto input
 goto selwork
 
 @lswork_Delete_SD:/apps
-rm -o -s 0:/apps
+if ask "Sure?"
+    rm -o -s 0:/apps
+end
 goto selwork
 
 @lswork_Reboot
 reboot
+
+@lswork_ShutDown
+shutdown
+
+@lswork_Credit
+echo "Chinese System Installer Credit \nFrom Theopse\n\nHaneu(haneu123): Developer\nRiikosiro(Rintim): Maintainer\n\nGithub: https://github.com/Theopse/GM9-Script\nGitlab: https://gitlab.com/Theopse/gm9-script"
+goto lswork
+
+@lswork_Exit
+goto end
 
 @end

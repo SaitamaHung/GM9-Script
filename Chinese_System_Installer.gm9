@@ -144,7 +144,7 @@ shutdown
 
 @lswork_Credit
 echo "Chinese System Installer Credit \nFrom Theopse\n\nHaneu(haneu123): Developer\nRiikosiro(Rintim): Maintainer\n\nGithub: https://github.com/Theopse/GM9-Script\nGitlab: https://gitlab.com/Theopse/gm9-script"
-goto lswork
+goto selwork
 
 @lswork_Exit
 goto end

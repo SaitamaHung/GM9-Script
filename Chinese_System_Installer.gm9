@@ -45,8 +45,6 @@ goto selwork
 labelsel "Chinese System Installer Build 0\nWhat Do You Want To Do?" lswork_*
 
 
-cp -w -s -n 0:/apps/luma 0:/luma
-
 @lswork_Insatll_SC/TC_to_SysNAND
 if chk $[ONTYPE] "N3DS"
     cp -w -s -n 0:/apps/New3DS/title 1:/title
@@ -63,6 +61,7 @@ if ask "Want to install SC/TC home menu?"
 	find 1:/title/00040030/00008202/content/*.app ORIGAPP
 	cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
 	cp -k $[ORIGAPP] 1:/rw/originalhomemenu.app
+    cp -w -s -n 0:/apps/luma 0:/luma
 	goto replace
     goto selwork
 else
@@ -76,7 +75,7 @@ if findnot E:/nand.bin NULL
     goto lswork
 end
 
-cp -w -s -n 0:/apps/luma 0:/luma
+#cp -w -s -n 0:/apps/luma 0:/luma
 
 if chk $[ONTYPE] "N3DS"
     cp -w -s -n 0:/apps/New3DS/title 4:/title
@@ -95,6 +94,7 @@ if ask "Want to install SC/TC home menu?"
     find 4:/title/00040030/00008202/content/*.app ORIGAPP
     cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
     cp -k $[ORIGAPP] 4:/rw/originalhomemenu.app
+    cp -w -s -n 0:/apps/luma 0:/luma
     goto replace
     goto selwork
 else
@@ -127,7 +127,7 @@ goto input
 cp -w -s -n 0:/apps/Jap_input/title 1:/title
 goto input
 
-@inputs_Back
+@inputs_B_Back
 goto selwork
 
 @lswork_Delete_SD:/apps
@@ -136,17 +136,17 @@ if ask "Sure?"
 end
 goto selwork
 
-@lswork_Reboot
+@lswork_START_Reboot
 reboot
 
-@lswork_ShutDown
-shutdown
+@lswork_SELECT_ShutDown
+poweroff
 
 @lswork_Credit
 echo "Chinese System Installer Credit \nFrom Theopse\n\nHaneu(haneu123): Developer\nRiikosiro(Rintim): Maintainer\n\nGithub: https://github.com/Theopse/GM9-Script\nGitlab: https://gitlab.com/Theopse/gm9-script"
 goto selwork
 
-@lswork_Exit
+@lswork_B_Exit
 goto end
 
 @end

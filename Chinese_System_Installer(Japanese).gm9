@@ -1,0 +1,337 @@
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# This File is From Theopse (Self@theopse.org)
+# Licensed under UODS-License-lv4(Non-Closed)
+# File:	Chinese_System_Installer(Japanese).gm9 (GM9Script/Chinese_System_Installer(Japanese).gm9)
+# Content:	3DS Chinese System Installer for Japanese Region
+# Copyright (c) 2021 Theopse Organization All rights reserved
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+
+# Head
+@CSIJ
+# Body
+
+# Backup Nand
+@BackupNAND
+# Check Emunand exists
+if find E:/nand.bin NULL
+    labelsel "Do You Want To Backup NAND First?" bak_*
+else
+    labelsel "Do You Want To Backup NAND First?" baks_*
+end
+
+@bak_Backup_SysNAND
+set ERRORMSG "SysNAND backup failed"
+set SUCCESSMSG "SysNAND backup success"
+if ask "Create a SysNAND backup in $[GM9OUT]?"
+
+    findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
+    cp -h S:/nand_minsize.bin $[OUTPATH]
+    echo "Backup created succesfully:\n$[OUTPATH]"
+end
+goto BackupNAND
+
+@bak_Backup_EmuNAND
+set ERRORMSG "EmuNAND backup failed"
+set SUCCESSMSG "EmuNAND backup success"
+if ask "Create a EmuNAND backup in $[GM9OUT]?"
+    findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
+    cp -h E:/nand_minsize.bin $[OUTPATH]
+    echo "Backup created succesfully:\n$[OUTPATH]"
+end
+goto BackupNAND
+
+@bak_No_backup
+goto selwork
+
+
+@baks_Yes
+set ERRORMSG "SysNAND backup failed"
+set SUCCESSMSG "SysNAND backup success" 
+findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
+cp -h S:/nand_minsize.bin $[OUTPATH]
+echo "Backup created succesfully:\n$[OUTPATH]"
+@baks_No
+goto selwork
+
+
+
+@selwork
+labelsel -s "Chinese System Installer(For Japanese) Build 1\nWhat Do You Want To Do?" lswork_*
+
+
+@lswork_Insatll_SC/TC_to_SysNAND
+
+if not find 0:/apps/BackupSysNAND NULL
+    mkdir 0:/apps/BackupSysNAND
+end 
+
+if not find 0:/apps/BackupSysNAND/title NULL
+    goto sc_backup
+end
+
+@sc_next
+
+if chk $[ONTYPE] "N3DS"
+    cp -w -s -n 0:/apps/New3DS/CTR/title 1:/title
+    cp -w -s -n 0:/apps/New3DS/TWL/title 2:/title
+    cp -w -s -n 0:/apps/luma 0:/luma
+elif chk $[ONTYPE] "O3DS"
+    cp -w -s -n 0:/apps/Old3DS/CTR/title 1:/title
+    cp -w -s -n 0:/apps/Old3DS/TWL/title 2:/title
+    cp -w -s -n 0:/apps/luma 0:/luma
+else
+    echo "Setup failed!"
+end
+if ask "Want to install SC/TC home menu?"
+	filesel -d "Select your modified Home Menu CIA" 0:/apps/*.cia CIA
+	encrypt $[CIA]
+	imgmount $[CIA]
+	find G:/*.app EDITAPP
+	find 1:/title/00040030/00008202/content/*.app ORIGAPP
+	cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
+	cp -k $[ORIGAPP] 1:/rw/originalhomemenu.app
+	goto replace
+    goto selwork
+else
+    goto selwork
+end
+
+@sc_backup 
+
+goto sc_next
+
+@lswork_Install_SC/TC_to_EmuNAND
+
+if not find 0:/apps/BackupEmuNAND NULL
+    mkdir 0:/apps/BackupEmuNAND
+end
+
+if not find 0:/apps/BackupEmuNAND/title NULL
+    goto ec_backup
+end
+
+@ec_next
+
+if chk $[ONTYPE] "N3DS"
+    cp -w -s -n 0:/apps/New3DS/CTR/title 4:/title
+    cp -w -s -n 0:/apps/New3DS/TWL/title 5:/title
+    cp -w -s -n 0:/apps/luma 0:/luma
+elif chk $[ONTYPE] "O3DS"
+    cp -w -s -n 0:/apps/Old3DS/CTR/title 4:/title
+    cp -w -s -n 0:/apps/Old3DS/TWL/title 5:/title
+    cp -w -s -n 0:/apps/luma 0:/luma
+else
+    echo "Setup failed!"
+    goto lswork
+end
+
+if ask "Want to install SC/TC home menu?"
+    filesel -d "Select your modified Home Menu CIA" 0:/apps/*.cia CIA
+    encrypt $[CIA]
+    imgmount $[CIA]
+    find G:/*.app EDITAPP
+    find 4:/title/00040030/00008202/content/*.app ORIGAPP
+    cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
+    cp -k $[ORIGAPP] 4:/rw/originalhomemenu.app
+    goto replace
+    goto selwork
+else
+    goto selwork
+end
+
+@ec_backup
+
+if ask "Want to backup your titles?"
+    cp -w -s -n 4:/title 0:/apps/BackupEmuNAND/title
+end
+
+goto ec_next
+
+
+@replace
+# Replace home menu .app with edited .app
+cp -w -n $[EDITAPP] $[ORIGAPP]
+goto selwork
+
+
+@lswork_Clear_HOME_Menu_caches
+goto clear
+
+@clear
+labelsel "Which is the NAND you want to clear?" clears_*
+
+@clears_SysNAND
+if ask "Sure?"
+    rm -o -s A:/extdata/00000000/00000082
+end
+goto clear
+
+@clears_EmuNAND
+if findnot E:/nand.bin NULL
+    echo "You Don't Have EmuNAND"
+	goto clear
+end
+
+if ask "Sure?"
+    rm -o -s B:/extdata/00000000/00000082
+end
+goto clear
+
+@clears_Back
+goto selwork
+
+
+@lswork_Input_Method_Change
+goto input
+
+@input
+labelsel "Which Input Method Do You Want To Use?" inputs_*
+
+@inputs_Simplified_Chinese
+cp -w -s -n 0:/apps/Pinyin_input/title 1:/title
+goto input
+
+@inputs_Japanese
+cp -w -s -n 0:/apps/Jap_input/title 1:/title
+goto input
+
+@inputs_Back
+goto selwork
+
+
+@lswork_Kanji_Luma_Patch
+goto patch
+
+@patch
+labelsel "Use or Delete kanji system patch?" patchs_*
+
+@patchs_Use
+if ask "Sure?"
+    cp -w -s -n 0:/apps/Kanji_Luma_Patch/luma 0:/luma
+end
+goto patch
+
+@patchs_Delete
+rm -o -s 0:/luma/titles/000400100002BF00
+rm -o -s 0:/luma/titles/0004000000056C00
+rm -o -s 0:/luma/titles/0004001000020A00
+rm -o -s 0:/luma/titles/0004001000020B00
+rm -o -s 0:/luma/titles/0004001000020D00
+rm -o -s 0:/luma/titles/0004001000020E00
+rm -o -s 0:/luma/titles/0004001000020F00
+rm -o -s 0:/luma/titles/0004000000023100
+rm -o -s 0:/luma/titles/0004001000020000
+rm -o -s 0:/luma/titles/0004001000020400
+rm -o -s 0:/luma/titles/0004001000020500
+rm -o -s 0:/luma/titles/0004001000020700
+rm -o -s 0:/luma/titles/0004001000020900
+rm -o -s 0:/luma/titles/0004001000020800
+rm -o -s 0:/luma/titles/0004001000023100
+rm -o -s 0:/luma/titles/0004000000072500
+goto patch
+
+@patchs_Back
+goto selwork
+
+@lswork_Uninstall
+goto uninstall
+
+@uninstall
+labelsel "Choose the SysNAND or EmuNAND." uninstalls_*
+
+@uninstalls_Unstall_SysNAND
+if findnot 0:/apps/BackupSysNAND/title NULL
+    echo "No SysNAND title backup"
+	goto uninstall
+end
+
+if ask "Do you really want to Uninstall?"
+    cp -w -s -n 0:/apps/BackupSysNAND/title 1:/title
+    rm -o -s 0:/luma/titles/000400100002BF00
+    rm -o -s 0:/luma/titles/0004000000056C00
+    rm -o -s 0:/luma/titles/0004001000020A00
+    rm -o -s 0:/luma/titles/0004001000020B00
+    rm -o -s 0:/luma/titles/0004001000020D00
+    rm -o -s 0:/luma/titles/0004001000020E00
+    rm -o -s 0:/luma/titles/0004001000020F00
+    rm -o -s 0:/luma/titles/0004000000023100
+    rm -o -s 0:/luma/titles/0004001000020000
+    rm -o -s 0:/luma/titles/0004001000020400
+    rm -o -s 0:/luma/titles/0004001000020500
+    rm -o -s 0:/luma/titles/0004001000020700
+    rm -o -s 0:/luma/titles/0004001000020900
+    rm -o -s 0:/luma/titles/0004001000020800
+    rm -o -s 0:/luma/titles/0004001000023100
+    rm -o -s 0:/luma/titles/0004000000072500
+end
+goto uninstall
+
+@uninstalls_Unstall_EmuNAND
+if findnot 0:/apps/BackupEmuNAND/title NULL
+    echo "No EmuNAND title backup"
+	goto uninstall
+end
+
+if ask "Do you really want to Uninstall?"
+    cp -w -s -n 0:/apps/BackupEmuNAND/title 4:/title
+    rm -o -s 0:/luma/titles/000400100002BF00
+    rm -o -s 0:/luma/titles/0004000000056C00
+    rm -o -s 0:/luma/titles/0004001000020A00
+    rm -o -s 0:/luma/titles/0004001000020B00
+    rm -o -s 0:/luma/titles/0004001000020D00
+    rm -o -s 0:/luma/titles/0004001000020E00
+    rm -o -s 0:/luma/titles/0004001000020F00
+    rm -o -s 0:/luma/titles/0004000000023100
+    rm -o -s 0:/luma/titles/0004001000020000
+    rm -o -s 0:/luma/titles/0004001000020400
+    rm -o -s 0:/luma/titles/0004001000020500
+    rm -o -s 0:/luma/titles/0004001000020700
+    rm -o -s 0:/luma/titles/0004001000020900
+    rm -o -s 0:/luma/titles/0004001000020800
+    rm -o -s 0:/luma/titles/0004001000023100
+    rm -o -s 0:/luma/titles/0004000000072500
+end
+goto uninstall
+
+@uninstalls_Back
+goto selwork
+
+@lswork_Delete_SD:/apps
+goto delete
+
+@delete
+labelsel "Delete with your backup?" deletes_*
+
+@deletes_No
+if ask "Do you really want to delete Chinese Patch?"
+    rm -o -s 0:/apps/Jap_input
+    rm -o -s 0:/apps/Kanji_Luma_Patch
+    rm -o -s 0:/apps/luma
+    rm -o -s 0:/apps/New3DS
+    rm -o -s 0:/apps/Old3DS
+    rm -o -s 0:/apps/Pinyin_input
+    rm -o -s 0:/apps/HomeMenu_edited.cia
+end
+goto selwork
+
+@deletes_Yes
+if ask "Do you really want to delete Chinese Patch with your backup?"
+    rm -o -s 0:/apps
+end
+goto selwork
+
+@lswork_Reboot
+reboot
+
+@lswork_ShutDown
+poweroff
+
+@lswork_Credit
+echo "Chinese System Installer Credit \nFrom Theopse\n\nHaneu(haneu123): Developer\nRiikosiro(Rintim): Maintainer\n\nGithub: https://github.com/Theopse/GM9-Script\nGitlab: https://gitlab.com/Theopse/gm9-script"
+goto selwork
+
+@lswork_Exit
+goto end
+
+@end

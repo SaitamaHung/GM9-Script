@@ -1,3 +1,13 @@
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# This File is From Theopse (Self@theopse.org)
+# Licensed under UODS-License-lv4(Non-Closed)
+# File:	Chinese_System_Installer.gm9 (GM9Script/Chinese_System_Installer.gm9)
+# Content:	3DS Chinese System Installer
+# Copyright (c) 2021 Theopse Organization All rights reserved
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+@CSI
+
 @BackupNAND
 if find E:/nand.bin NULL
     labelsel "Do You Want To Backup NAND First?" bak_*
@@ -21,7 +31,7 @@ set ERRORMSG "EmuNAND backup failed"
 set SUCCESSMSG "EmuNAND backup success"
 if ask "Create a EmuNAND backup in $[GM9OUT]?"
     findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand_???.bin OUTPATH
-    cp -h S:/nand_minsize.bin $[OUTPATH]
+    cp -h E:/nand_minsize.bin $[OUTPATH]
     echo "Backup created succesfully:\n$[OUTPATH]"
 end
 goto BackupNAND
@@ -42,14 +52,18 @@ goto selwork
 
 
 @selwork
-labelsel "Chinese System Installer Build 0\nWhat Do You Want To Do?" lswork_*
+labelsel -s "Chinese System Installer(For Japanese) Build 0\nWhat Do You Want To Do?" lswork_*
 
 
 @lswork_Insatll_SC/TC_to_SysNAND
 if chk $[ONTYPE] "N3DS"
-    cp -w -s -n 0:/apps/New3DS/title 1:/title
+    cp -w -s -n 0:/apps/New3DS/CTR/title 1:/title
+    cp -w -s -n 0:/apps/New3DS/TWL/title 2:/title
+    cp -w -s -n 0:/apps/luma 0:/luma
 elif chk $[ONTYPE] "O3DS"
-    cp -w -s -n 0:/apps/Old3DS/title 1:/title
+    cp -w -s -n 0:/apps/Old3DS/CTR/title 1:/title
+    cp -w -s -n 0:/apps/Old3DS/TWL/title 2:/title
+    cp -w -s -n 0:/apps/luma 0:/luma
 else
     echo "Setup failed!"
 end
@@ -61,7 +75,6 @@ if ask "Want to install SC/TC home menu?"
 	find 1:/title/00040030/00008202/content/*.app ORIGAPP
 	cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
 	cp -k $[ORIGAPP] 1:/rw/originalhomemenu.app
-    cp -w -s -n 0:/apps/luma 0:/luma
 	goto replace
     goto selwork
 else
@@ -75,12 +88,14 @@ if findnot E:/nand.bin NULL
     goto lswork
 end
 
-#cp -w -s -n 0:/apps/luma 0:/luma
-
 if chk $[ONTYPE] "N3DS"
-    cp -w -s -n 0:/apps/New3DS/title 4:/title
+    cp -w -s -n 0:/apps/New3DS/CTR/title 4:/title
+    cp -w -s -n 0:/apps/New3DS/TWL/title 5:/title
+    cp -w -s -n 0:/apps/luma 0:/luma
 elif chk $[ONTYPE] "O3DS"
-    cp -w -s -n 0:/apps/Old3DS/title 4:/title
+    cp -w -s -n 0:/apps/Old3DS/CTR/title 4:/title
+    cp -w -s -n 0:/apps/Old3DS/TWL/title 5:/title
+    cp -w -s -n 0:/apps/luma 0:/luma
 else
     echo "Setup failed!"
     goto lswork
@@ -94,7 +109,6 @@ if ask "Want to install SC/TC home menu?"
     find 4:/title/00040030/00008202/content/*.app ORIGAPP
     cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
     cp -k $[ORIGAPP] 4:/rw/originalhomemenu.app
-    cp -w -s -n 0:/apps/luma 0:/luma
     goto replace
     goto selwork
 else
@@ -127,7 +141,7 @@ goto input
 cp -w -s -n 0:/apps/Jap_input/title 1:/title
 goto input
 
-@inputs_B_Back
+@inputs_Back
 goto selwork
 
 @lswork_Delete_SD:/apps
@@ -136,17 +150,17 @@ if ask "Sure?"
 end
 goto selwork
 
-@lswork_START_Reboot
+@lswork_Reboot
 reboot
 
-@lswork_SELECT_ShutDown
+@lswork_ShutDown
 poweroff
 
 @lswork_Credit
 echo "Chinese System Installer Credit \nFrom Theopse\n\nHaneu(haneu123): Developer\nRiikosiro(Rintim): Maintainer\n\nGithub: https://github.com/Theopse/GM9-Script\nGitlab: https://gitlab.com/Theopse/gm9-script"
 goto selwork
 
-@lswork_B_Exit
+@lswork_Exit
 goto end
 
 @end
